@@ -68,6 +68,7 @@ io.on('connection' , (socket) => {
 
     socket.on('bye', function(){
         console.log('received bye');
+        users.removeUser(socket.id);
     });
 
 })
