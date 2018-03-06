@@ -71,6 +71,11 @@ io.on('connection' , (socket) => {
         users.removeUser(socket.id);
     });
 
+    socket.on('disconnect' , function(){
+        console.log('User Disconnected');
+        users.removeUser(socket.id);
+    });
+
 })
 
 server.listen(port,() => {
