@@ -48,6 +48,13 @@ socket.on('joined', function(room) {
   isChannelReady = true;
 });
 
+////////////////////////////////////////////////////
+
+function sendMessage(message) {
+  console.log('Client sending message: ', message);
+  socket.emit('message', message);
+}
+
 socket.on('message', function(message) {
   console.log('Client received message:', message);
   if (message === 'got user media') {
@@ -77,7 +84,6 @@ var localVideo = document.querySelector('#localVideo');
 var remoteVideo = document.querySelector('#remoteVideo');
 
 navigator.mediaDevices.getUserMedia({
-  audio: false,
   video: true
 })
 .then(gotStream)
@@ -120,6 +126,21 @@ window.onbeforeunload = function() {
 };
 
 ////////////////////////////////////////////////////
+
+
+function createPeerConnection() {
+  try {
+    pc = new RTCPeerConnection(null);
+    pc.onicecandidate = handleIceCandidate;
+    pc.onaddstream = handleRemoteStreamAdded;
+    pc.onremovestream = handleRemoteStreamRemoved;
+    console.log('Created RTCPeerConnnection');
+  } catch (e) {
+    console.log('Failed to create PeerConnection, exception: ' + e.message);
+    alert('Cannot create RTCPeerConnection object.');
+    return;
+  }
+}
 
 function handleIceCandidate(event) {
   console.log('icecandidate event: ', event);
