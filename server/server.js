@@ -3,6 +3,7 @@ const http = require ('http');
 const express = require('express');
 const socketIO = require ('socket.io');
 const {Users} = require('./utils/users');
+const {isRealString} = require('./utils/validation');
 
 const publicPath = path.join(__dirname , '../public');
 const port = process.env.PORT || 3000;
@@ -18,7 +19,13 @@ io.on('connection' , (socket) => {
 
     console.log('New User Connected');
 
-    socket.on('create or join' , (room) => {
+    socket.on('create or join' , (params) => {
+
+        if(!isRealString( params.name ) || !isRealString(params.room) ){
+            return callback('Name and room are required');
+        }
+
+        room = params.room;
 
         var clientsInRoom = users.getUserList(room);
         var numOfClients = clientsInRoom.length;
@@ -27,7 +34,7 @@ io.on('connection' , (socket) => {
 
             socket.join(room);
             console.log('Client ID ' + socket.id + ' created room ' + room );
-            users.addUser(socket.id , 'User 1' , room);
+            users.addUser(socket.id , params.name , room);
             socket.emit('created', room, socket.id);
 
         }
@@ -36,7 +43,7 @@ io.on('connection' , (socket) => {
             io.sockets.in(room).emit('join', room);
             socket.join(room);
             console.log('Client ID ' + socket.id + ' joined room ' + room );
-            users.addUser(socket.id , 'User 2' , room);
+            users.addUser(socket.id , params.name , room);
             socket.emit('joined', room, socket.id);
             io.sockets.in(room).emit('ready');
 

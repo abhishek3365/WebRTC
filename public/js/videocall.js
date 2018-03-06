@@ -21,12 +21,26 @@ var sdpConstraints = {
 
 var socket = io();
 
-var room = 'foo';
+var room;
+var user;
 
-if(room != ''){
-    socket.emit('create or join', room);
-    console.log('Attempted to create or  join room', room);
-}
+socket.on('connect' , function() {
+
+    var params = jQuery.deparam(window.location.search);
+    console.log('Attempted to create or  join room', params.room);
+    socket.emit('create or join' , params , function (error) {
+        if(error){
+            alert(error);
+            window.location.href = '/';
+        }
+        else{
+            room = params.room;
+            user = params.name;
+            console.log('no error');
+        }
+    });
+
+})
 
 socket.on('created', function(room) {
   console.log('Created room ' + room);
@@ -34,7 +48,8 @@ socket.on('created', function(room) {
 });
 
 socket.on('full', function(room) {
-  console.log('Room ' + room + ' is full');
+    alert('Room is already being used');
+    window.location.href = '/';
 });
 
 socket.on('join', function (room){
